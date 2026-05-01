@@ -1,8 +1,31 @@
 import streamlit as st
+import google.generativeai as genai
+import os
 
-st.title("AI Nutrition Assistant")
+# API key load
+api_key = os.getenv("GEMINI_API_KEY")
+genai.configure(api_key=api_key)
 
-user_input = st.text_input("Enter your goal:")
+model = genai.GenerativeModel("gemini-pro")
 
-if st.button("Get Advice"):
-    st.write("Your diet advice will appear here")
+st.title("🥗 AI Nutrition Assistant")
+
+# Chat input
+user_input = st.text_input("Enter your goal (weight loss, diabetes, etc):")
+
+if st.button("Get Diet Advice"):
+    if user_input:
+        prompt = f"""
+        You are a smart nutrition assistant.
+
+        Give:
+        - Indian diet plan
+        - budget friendly
+        - what to eat
+        - what to avoid
+
+        User: {user_input}
+        """
+
+        response = model.generate_content(prompt)
+        st.write(response.text)
