@@ -2,25 +2,23 @@ import streamlit as st
 import google.generativeai as genai
 import os
 
-# API key
 api_key = os.getenv("AIzaSyAb5s0dTp12BOOqtYaHEscLMJ1_b0KLKQE")
-genai.configure(api_key=api_key)
 
-# Updated model
-model = genai.GenerativeModel("gemini-1.5-flash-latest")
+if not api_key:
+    st.error("API key missing")
+else:
+    genai.configure(api_key=api_key)
 
-st.title("🥗 AI Nutrition Assistant")
+    model = genai.GenerativeModel("models/gemini-1.5-flash")
 
-user_input = st.text_input("Enter your goal:")
+    st.title("🥗 AI Nutrition Assistant")
 
-if st.button("Get Advice"):
-    if user_input:
-        prompt = f"""
-        You are a nutrition assistant.
-        Give simple Indian diet plan, budget friendly.
+    user_input = st.text_input("Enter your goal:")
 
-        User: {user_input}
-        """
-
-        response = model.generate_content(prompt)
-        st.write(response.text)
+    if st.button("Get Advice"):
+        if user_input:
+            try:
+                response = model.generate_content(user_input)
+                st.write(response.text)
+            except Exception as e:
+                st.error(str(e))
