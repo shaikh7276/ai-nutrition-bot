@@ -1,34 +1,28 @@
-import google.generativeai as genai
+import streamlit as st
 import os
-
-genai.configure(api_key=os.getenv("AIzaSyAb5s0dTp12BOOqtYaHEscLMJ1_b0KLKQE"))
-
-for m in genai.list_models():
-    print(m.name, m.supported_generation_methods)
-    model = genai.GenerativeModel("gemini-1.0-pro")
-    import streamlit as st
-import google.generativeai as genai
-import os
-
-# API key
-api_key = os.getenv("GEMINI_API_KEY")
-genai.configure(api_key=api_key)
-
-# Updated model
-model = genai.GenerativeModel("gemini-1.5-flash")
+from google import genai
 
 st.title("🥗 AI Nutrition Assistant")
 
-user_input = st.text_input("Enter your goal:")
+# Load API key
+api_key = os.getenv("AIzaSyAb5s0dTp12BOOqtYaHEscLMJ1_b0KLKQE")
 
-if st.button("Get Advice"):
-    if user_input:
-        prompt = f"""
-        You are a nutrition assistant.
-        Give simple Indian diet plan, budget friendly.
+if not api_key:
+    st.error("API key missing")
+else:
+    try:
+        client = genai.Client(api_key=api_key)
 
-        User: {user_input}
-        """
+        user_input = st.text_input("Enter your goal:")
 
-        response = model.generate_content(prompt)
-        st.write(response.text)
+        if st.button("Get Advice"):
+            if user_input:
+                response = client.models.generate_content(
+                    model="gemini-1.0-pro",
+                    contents=user_input
+                )
+                st.write(response.text)
+
+    except Exception as e:
+        st.error(f"Error: {e}")
+
