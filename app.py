@@ -5,9 +5,9 @@ import os
 api_key = os.getenv("AIzaSyAb5s0dTp12BOOqtYaHEscLMJ1_b0KLKQE")
 
 if not api_key:
-    st.error("API key missing")
+    st.error("AIzaSyAb5s0dTp12BOOqtYaHEscLMJ1_b0KLKQE")
 else:
-    genai.configure(api_key=api_key)
+    genai.configure(AIzaSyAb5s0dTp12BOOqtYaHEscLMJ1_b0KLKQE)
 
     model = genai.GenerativeModel("models/gemini-1.5-flash")
 
