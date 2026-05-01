@@ -7,7 +7,7 @@ api_key = os.getenv("AIzaSyAb5s0dTp12BOOqtYaHEscLMJ1_b0KLKQE")
 genai.configure(api_key=api_key)
 
 # Updated model
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-1.5-flash-latest")
 
 st.title("🥗 AI Nutrition Assistant")
 
