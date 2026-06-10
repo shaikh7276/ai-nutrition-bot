@@ -12,7 +12,7 @@ st.write("Get personalized nutrition and diet advice.")
 
 # Configure Gemini API
 try:
-    api_key = st.secrets["AQ.Ab8RN6Lpwso-SbCHk9VnIdyunq3PKCQ59U0hRo1BI0P-F3hHQA"]
+  api_key = st.secrets["AQ.Ab8RN6Lpwso-SbCHk9VnIdyunq3PKCQ59U0hRo1BI0P-F3hHQA"]
     genai.configure(api_key=api_key)
 
     model = genai.GenerativeModel("gemini-2.0-flash")
