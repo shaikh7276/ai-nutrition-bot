@@ -1,24 +1,52 @@
 import streamlit as st
-import os
+import google.generativeai as genai
+
+# Page Config
+st.set_page_config(
+    page_title="AI Nutrition Assistant",
+    page_icon="🥗"
+)
 
 st.title("🥗 AI Nutrition Assistant")
+st.write("Get personalized nutrition and diet advice.")
 
-api_key = os.getenv("AIzaSyAb5s0dTp12BOOqtYaHEscLMJ1_b0KLKQE")
-
-if not api_key:
-    st.error("API key missing")
-else:
+# Configure Gemini API
+try:
+    api_key = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=api_key)
 
-    user_input = st.text_input("Enter your goal:")
+    model = genai.GenerativeModel("gemini-2.0-flash")
+
+    goal = st.text_input(
+        "What is your nutrition goal?",
+        placeholder="Example: Weight loss, muscle gain, healthy diet..."
+    )
 
     if st.button("Get Advice"):
-        if user_input:
-            try:
-                response = genai.generate_text(
-                    model="models/text-bison-001",
-                    prompt=user_input
-                )
-                st.write(response.result)
-            except Exception as e:
-                st.error(str(e))
+        if goal.strip():
+            with st.spinner("Generating nutrition advice..."):
+                prompt = f"""
+                You are a professional nutritionist.
+
+                User Goal: {goal}
+
+                Provide:
+                1. Diet recommendation
+                2. Foods to eat
+                3. Foods to avoid
+                4. Daily nutrition tips
+                5. Water intake recommendation
+
+                Keep the answer simple and practical.
+                """
+
+                response = model.generate_content(prompt)
+
+                st.success("Advice Generated!")
+                st.write(response.text)
+
+        else:
+            st.warning("Please enter your goal.")
+
+except Exception as e:
+    st.error(f"Error: {e}")
