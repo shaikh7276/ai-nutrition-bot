@@ -1,52 +1,55 @@
 import streamlit as st
 import google.generativeai as genai
 
-# Page Config
+# Page settings
 st.set_page_config(
     page_title="AI Nutrition Assistant",
     page_icon="🥗"
 )
 
+# Gemini API Key
+API_KEY = "PASTE_YOUR_GEMINI_API_KEY_HERE"
+
+# Configure Gemini
+genai.configure(api_key=API_KEY)
+
+# Load model
+model = genai.GenerativeModel("gemini-2.0-flash")
+
+# App UI
 st.title("🥗 AI Nutrition Assistant")
 st.write("Get personalized nutrition and diet advice.")
 
-# Configure Gemini API
-try:
-  api_key = st.secrets["AQ.Ab8RN6Lpwso-SbCHk9VnIdyunq3PKCQ59U0hRo1BI0P-F3hHQA"]
-    genai.configure(api_key=api_key)
+goal = st.text_input(
+    "Enter your nutrition goal",
+    placeholder="Weight loss, muscle gain, healthy diet..."
+)
 
-    model = genai.GenerativeModel("gemini-2.0-flash")
+if st.button("Get Advice"):
+    if goal:
+        with st.spinner("Generating advice..."):
+            prompt = f"""
+            You are a certified nutritionist.
 
-    goal = st.text_input(
-        "What is your nutrition goal?",
-        placeholder="Example: Weight loss, muscle gain, healthy diet..."
-    )
+            User Goal: {goal}
 
-    if st.button("Get Advice"):
-        if goal.strip():
-            with st.spinner("Generating nutrition advice..."):
-                prompt = f"""
-                You are a professional nutritionist.
+            Give:
+            1. Diet Plan
+            2. Foods to Eat
+            3. Foods to Avoid
+            4. Water Intake
+            5. Exercise Tips
 
-                User Goal: {goal}
+            Keep the answer simple.
+            """
 
-                Provide:
-                1. Diet recommendation
-                2. Foods to eat
-                3. Foods to avoid
-                4. Daily nutrition tips
-                5. Water intake recommendation
-
-                Keep the answer simple and practical.
-                """
-
+            try:
                 response = model.generate_content(prompt)
-
                 st.success("Advice Generated!")
                 st.write(response.text)
 
-        else:
-            st.warning("Please enter your goal.")
+            except Exception as e:
+                st.error(f"Error: {e}")
 
-except Exception as e:
-    st.error(f"Error: {e}")
+    else:
+        st.warning("Please enter a goal.")
