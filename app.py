@@ -1,151 +1,55 @@
 import streamlit as st
 import google.generativeai as genai
 
-# --------------------
-# PAGE CONFIG
-# --------------------
+# Page settings
 st.set_page_config(
     page_title="AI Nutrition Assistant",
-    page_icon="🥗",
-    layout="wide"
+    page_icon="🥗"
 )
 
-# --------------------
-# CUSTOM CSS
-# --------------------
-st.markdown("""
-<style>
-.main {
-    padding-top: 1rem;
-}
+# Gemini API Key
+API_KEY = "AQ.Ab8RN6IxTA1tZGG7y0vkrfxl6huzyg0vqBK4I5zYkK0Ln5lfWQ"
 
-.metric-box {
-    background-color: #f5f7fa;
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    border: 1px solid #e0e0e0;
-}
-
-.stButton > button {
-    width: 100%;
-    height: 50px;
-    border-radius: 10px;
-    font-size: 18px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# --------------------
-# GEMINI API
-# --------------------
-API_KEY = st.secrets["AQ.Ab8RN6K2y_ZNN-fMnITA_EIbbPs9NJtNlcY_amEZxEqdgDPLLg"]
-
+# Configure Gemini
 genai.configure(api_key=API_KEY)
 
+# Load model
 model = genai.GenerativeModel("gemini-2.0-flash")
 
-# --------------------
-# SIDEBAR
-# --------------------
-with st.sidebar:
-    st.title("🥗 Nutrition Bot")
-
-    age = st.number_input("Age", 15, 100, 21)
-    weight = st.number_input("Weight (kg)", 30, 200, 70)
-    height = st.number_input("Height (cm)", 100, 250, 170)
-
-    goal = st.selectbox(
-        "Goal",
-        [
-            "Weight Loss",
-            "Muscle Gain",
-            "Healthy Diet",
-            "Fat Loss"
-        ]
-    )
-
-# --------------------
-# HEADER
-# --------------------
+# App UI
 st.title("🥗 AI Nutrition Assistant")
-st.caption("Your Personal AI Diet & Fitness Coach")
+st.write("Get personalized nutrition and diet advice.")
 
-# --------------------
-# BMI
-# --------------------
-bmi = weight / ((height / 100) ** 2)
+goal = st.text_input(
+    "Enter your nutrition goal",
+    placeholder="Weight loss, muscle gain, healthy diet..."
+)
 
-if bmi < 18.5:
-    status = "Underweight"
-elif bmi < 25:
-    status = "Normal"
-elif bmi < 30:
-    status = "Overweight"
-else:
-    status = "Obese"
+if st.button("Get Advice"):
+    if goal:
+        with st.spinner("Generating advice..."):
+            prompt = f"""
+            You are a certified nutritionist.
 
-# --------------------
-# DASHBOARD
-# --------------------
-col1, col2, col3 = st.columns(3)
+            User Goal: {goal}
 
-with col1:
-    st.metric("BMI", f"{bmi:.1f}")
+            Give:
+            1. Diet Plan
+            2. Foods to Eat
+            3. Foods to Avoid
+            4. Water Intake
+            5. Exercise Tips
 
-with col2:
-    st.metric("Weight", f"{weight} kg")
+            Keep the answer simple.
+            """
 
-with col3:
-    st.metric("Status", status)
+            try:
+                response = model.generate_content(prompt)
+                st.success("Advice Generated!")
+                st.write(response.text)
 
-st.divider()
+            except Exception as e:
+                st.error(f"Error: {e}")
 
-# --------------------
-# TABS
-# --------------------
-tab1, tab2 = st.tabs(["🍽 Diet Plan", "📊 Health Info"])
-
-with tab1:
-
-    st.subheader("Generate AI Diet Plan")
-
-    if st.button("🚀 Generate Diet Plan"):
-        prompt = f"""
-        Create a nutrition and diet plan.
-
-        Age: {age}
-        Weight: {weight} kg
-        Height: {height} cm
-        Goal: {goal}
-
-        Include:
-        - Breakfast
-        - Lunch
-        - Dinner
-        - Snacks
-        - Water intake
-        - Exercise tips
-
-        Keep it practical.
-        """
-
-        with st.spinner("Generating plan..."):
-            response = model.generate_content(prompt)
-
-        st.success("Diet Plan Ready")
-        st.write(response.text)
-
-with tab2:
-
-    st.subheader("Health Summary")
-
-    st.write(f"**Age:** {age}")
-    st.write(f"**Height:** {height} cm")
-    st.write(f"**Weight:** {weight} kg")
-    st.write(f"**BMI:** {bmi:.1f}")
-    st.write(f"**Goal:** {goal}")
-
-    st.info(
-        "This AI assistant provides general nutrition guidance and is not a substitute for professional medical advice."
-    )
+    else:
+        st.warning("Please enter a goal.")
